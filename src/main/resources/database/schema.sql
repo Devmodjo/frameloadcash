@@ -34,6 +34,24 @@ CREATE TABLE accounts (
     CONSTRAINT uk_accounts_account_number UNIQUE (account_number),
     CONSTRAINT fk_accounts_client FOREIGN KEY (client_id) REFERENCES clients (id),
     CONSTRAINT ck_accounts_balance CHECK (balance >= 0),
-    CONSTRAINT ck_accounts_type CHECK (account_type IN ('CURRENT', 'SAVINGS')),
+    CONSTRAINT ck_accounts_type CHECK (account_type IN ('CURRENT', 'SAVING')),
     CONSTRAINT ck_accounts_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'CLOSED'))
+) ENGINE = InnoDB;
+
+CREATE TABLE transactions (
+    id               BIGINT         NOT NULL AUTO_INCREMENT,
+    reference        VARCHAR(20)    NOT NULL,
+    account_id       BIGINT         NOT NULL,
+    transaction_type VARCHAR(20)    NOT NULL,
+    amount           DECIMAL(19, 2) NOT NULL,
+    description      VARCHAR(255),
+    status           VARCHAR(20)    NOT NULL,
+    created_at       DATETIME(6)    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_transactions_reference UNIQUE (reference),
+    CONSTRAINT fk_transactions_account FOREIGN KEY (account_id) REFERENCES accounts (id),
+    CONSTRAINT ck_transactions_amount CHECK (amount > 0),
+    CONSTRAINT ck_transactions_type CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT')),
+    CONSTRAINT ck_transactions_status CHECK (status IN ('COMPLETED', 'FAILED')),
+    INDEX idx_transactions_account_date (account_id, created_at)
 ) ENGINE = InnoDB;
