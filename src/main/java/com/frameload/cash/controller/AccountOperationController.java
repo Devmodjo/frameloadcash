@@ -43,4 +43,18 @@ public class AccountOperationController {
     public OperationResponse deposit(@PathVariable Long accountId, @Valid @RequestBody OperationRequest request) {
         return operationServices.deposit(accountId, request);
     }
+
+    @Operation(summary = "Effectuer un retrait",
+            description = "Diminue le solde et enregistre une transaction WITHDRAWAL. Le solde ne peut jamais devenir négatif.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Retrait effectué"),
+            @ApiResponse(responseCode = "400", description = "Montant invalide (nul, négatif, non numérique, trop de décimales)"),
+            @ApiResponse(responseCode = "404", description = "Compte introuvable"),
+            @ApiResponse(responseCode = "409", description = "Solde insuffisant, compte bloqué ou clôturé")
+    })
+    @PostMapping("/withdrawals")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OperationResponse withdraw(@PathVariable Long accountId, @Valid @RequestBody OperationRequest request) {
+        return operationServices.withdraw(accountId, request);
+    }
 }

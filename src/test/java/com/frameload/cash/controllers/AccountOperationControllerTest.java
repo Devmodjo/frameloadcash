@@ -1,4 +1,4 @@
-package com.frameload.cash.controller;
+package com.frameload.cash.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;

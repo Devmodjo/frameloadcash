@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Opérations sur un compte (dépôts, puis retraits). Chaque opération est atomique : la mise à jour du solde
+ * Opérations sur un compte (dépôts et retraits). Chaque opération est atomique : la mise à jour du solde
  * et l'enregistrement de la transaction sont validés ensemble, ou annulés ensemble (rollback) si une exception survient.
  * Le solde de l'entité est enregistré automatiquement au commit (dirty checking d'Hibernate).
  */
@@ -57,6 +57,40 @@ public class AccountOperationServicesImpl implements AccountOperationServices {
         transaction.assignReference(ReferenceGenerator.format("TX", transaction.getId()));
 
         return new OperationResponse("Dépôt effectué avec succès.", transaction.getReference(),
+                transaction.getStatus(),
+                Map.of("accountId", accountId,
+                        "amount", transaction.getAmount(),
+                        "newBalance", account.getBalance()));
+    }
+
+    @Override
+    @Transactional
+    public OperationResponse withdraw(Long accountId, OperationRequest request) {
+        if (request.amount() == null || request.amount().signum() <= 0) {
+            throw new BusinessRuleException("Le montant doit être supérieur à zéro.");
+        }
+
+        Account account = accountRepository.findByIdForUpdate(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Compte introuvable : " + accountId));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new BusinessRuleException(
+                    "Ce compte n'est pas actif (statut : " + account.getStatus() + ") : aucune opération n'est possible.");
+        }
+
+        if (account.getBalance().compareTo(request.amount()) < 0) {
+            throw new BusinessRuleException("Solde insuffisant pour effectuer ce retrait.");
+        }
+
+        account.setBalance(account.getBalance().subtract(request.amount()));
+
+        Transaction transaction = new Transaction(account, TransactionType.WITHDRAWAL,
+                request.amount(), request.description());
+        transaction.assignReference(ReferenceGenerator.temporary());
+        transactionRepository.saveAndFlush(transaction);
+        transaction.assignReference(ReferenceGenerator.format("TX", transaction.getId()));
+
+        return new OperationResponse("Retrait effectué avec succès.", transaction.getReference(),
                 transaction.getStatus(),
                 Map.of("accountId", accountId,
                         "amount", transaction.getAmount(),

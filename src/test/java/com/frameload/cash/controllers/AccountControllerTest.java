@@ -1,4 +1,4 @@
-package com.frameload.cash.controller;
+package com.frameload.cash.controllers;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.matchesPattern;
