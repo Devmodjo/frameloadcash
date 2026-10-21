@@ -31,7 +31,8 @@ public class ClientServicesImpl implements ClientServices {
     public ClientResponse create(ClientRequest request) {
 
         if (clientRepository.existsByEmailIgnoreCase(request.email())) {
-            throw new BusinessRuleException("Cette adresse e-mail est déjà utilisée par un autre client.");
+            throw new BusinessRuleException("DUPLICATE_EMAIL",
+                    "Cette adresse e-mail est déjà utilisée par un autre client.");
         }
 
         Client client = new Client(request.firstName(), request.lastName(), request.email(),
