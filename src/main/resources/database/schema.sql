@@ -55,3 +55,26 @@ CREATE TABLE transactions (
     CONSTRAINT ck_transactions_status CHECK (status IN ('COMPLETED', 'FAILED')),
     INDEX idx_transactions_account_date (account_id, created_at)
 ) ENGINE = InnoDB;
+
+
+CREATE TABLE transfers (
+    id                     BIGINT         NOT NULL AUTO_INCREMENT,
+    reference              VARCHAR(20)    NOT NULL,
+    source_account_id      BIGINT         NOT NULL,
+    destination_account_id BIGINT         NOT NULL,
+    amount                 DECIMAL(19, 2) NOT NULL,
+    status                 VARCHAR(20)    NOT NULL,
+    created_at             DATETIME(6)    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_transfers_reference UNIQUE (reference),
+    CONSTRAINT fk_transfers_source FOREIGN KEY (source_account_id) REFERENCES accounts (id),
+    CONSTRAINT fk_transfers_destination FOREIGN KEY (destination_account_id) REFERENCES accounts (id),
+    CONSTRAINT ck_transfers_amount CHECK (amount > 0),
+    CONSTRAINT ck_transfers_distinct_accounts CHECK (source_account_id <> destination_account_id),
+    CONSTRAINT ck_transfers_status CHECK (status IN ('COMPLETED', 'FAILED'))
+) ENGINE = InnoDB;
+
+-- Colonne technique : rattache les deux écritures (TRANSFER_OUT, TRANSFER_IN) à leur virement.
+ALTER TABLE transactions
+    ADD COLUMN transfer_id BIGINT NULL,
+    ADD CONSTRAINT fk_transactions_transfer FOREIGN KEY (transfer_id) REFERENCES transfers (id);

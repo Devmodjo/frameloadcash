@@ -11,4 +11,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     long countByAccountId(Long accountId);
 
     List<Transaction> findByAccountIdOrderByIdDesc(Long accountId);
+
+    List<Transaction> findByTransferReference(String reference);
 }

@@ -20,7 +20,7 @@ import org.hibernate.type.SqlTypes;
 
 /**
  * Écriture traçable sur un compte. Une transaction n'est jamais modifiée ni supprimée après sa création :
- * c'est l'historique des mouvements. La date contient l'heure, pour pouvoir filtrer par période.
+ * c'est l'historique des mouvements. Pour un virement, les deux écritures pointent vers le même {@link Transfer}.
  */
 @Entity
 @Table(name = "transactions")
@@ -36,6 +36,10 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transfer_id")
+    private Transfer transfer;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -65,7 +69,6 @@ public class Transaction {
         this.amount = amount;
         this.description = description;
         this.status = TransactionStatus.COMPLETED;
-
         this.createdAt = LocalDateTime.now();
     }
 
@@ -83,6 +86,17 @@ public class Transaction {
 
     public Account getAccount() {
         return account;
+    }
+
+    public Transfer getTransfer() {
+        return transfer;
+    }
+
+    /**
+     * Rattache cette écriture à un virement (reste null pour un dépôt ou un retrait).
+     */
+    public void setTransfer(Transfer transfer) {
+        this.transfer = transfer;
     }
 
     public TransactionType getType() {
