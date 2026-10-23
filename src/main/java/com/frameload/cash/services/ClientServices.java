@@ -5,7 +5,7 @@ import com.frameload.cash.dto.ClientResponse;
 import com.frameload.cash.enums.ClientStatus;
 
 import java.util.List;
-import java.util.UUID;
+
 
 public interface ClientServices {
 
@@ -18,4 +18,6 @@ public interface ClientServices {
     ClientResponse update(Long id, ClientRequest request);
 
     ClientResponse changeStatus(Long id, ClientStatus status);
+
+    List<ClientResponse> search(String term);
 }

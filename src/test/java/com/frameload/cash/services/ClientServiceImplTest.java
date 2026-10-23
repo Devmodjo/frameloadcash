@@ -95,6 +95,55 @@ class ClientServiceImplTest {
     }
 
     @Test
+    void search_findsAClientByPartOfTheFirstNameIgnoringCase() {
+        String tag = UUID.randomUUID().toString().substring(0, 8);
+        ClientResponse created = clientServices.create(new ClientRequest("Zz" + tag, "Nkoulou",
+                uniqueEmail(), "+237 670 00 00 01", "Yaoundé"));
+
+        assertThat(clientServices.search(tag.toUpperCase())).extracting(ClientResponse::id)
+                .containsExactly(created.id());
+    }
+
+    @Test
+    void search_findsAClientByPartOfTheLastName() {
+        String tag = UUID.randomUUID().toString().substring(0, 8);
+        ClientResponse created = clientServices.create(new ClientRequest("Awa", "Zz" + tag,
+                uniqueEmail(), "+237 670 00 00 01", "Yaoundé"));
+
+        assertThat(clientServices.search("z" + tag.substring(0, 4))).extracting(ClientResponse::id)
+                .contains(created.id());
+    }
+
+    @Test
+    void search_findsAClientByEmail() {
+        String email = uniqueEmail();
+        ClientResponse created = clientServices.create(request(email));
+
+        assertThat(clientServices.search(email)).extracting(ClientResponse::id).containsExactly(created.id());
+    }
+
+    @Test
+    void search_findsAClientByClientNumber() {
+        ClientResponse created = clientServices.create(request(uniqueEmail()));
+
+        assertThat(clientServices.search(created.clientNumber())).extracting(ClientResponse::id)
+                .contains(created.id());
+    }
+
+    @Test
+    void search_returnsAnEmptyListWhenNothingMatches() {
+        assertThat(clientServices.search("introuvable-" + UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void search_withoutTerm_returnsAllClients() {
+        ClientResponse created = clientServices.create(request(uniqueEmail()));
+
+        assertThat(clientServices.search(null)).extracting(ClientResponse::id).contains(created.id());
+        assertThat(clientServices.search("   ")).extracting(ClientResponse::id).contains(created.id());
+    }
+
+    @Test
     void findAll_containsTheCreatedClient() {
         ClientResponse created = clientServices.create(request(uniqueEmail()));
 

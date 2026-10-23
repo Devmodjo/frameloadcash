@@ -88,4 +88,17 @@ public class ClientServicesImpl implements ClientServices {
         client.setStatus(status);
         return ClientResponse.from(client);
     }
+
+    /**
+     * Recherche les clients dont le numéro, le prénom, le nom ou l'e-mail contient le texte donné.
+     * Sans texte (null ou vide), retourne tous les clients.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientResponse> search(String term) {
+        if (term == null || term.isBlank()) {
+            return findAll();
+        }
+        return clientRepository.search(term.trim()).stream().map(ClientResponse::from).toList();
+    }
 }

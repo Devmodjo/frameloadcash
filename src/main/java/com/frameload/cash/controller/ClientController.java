@@ -49,11 +49,15 @@ public class ClientController {
         return clientServices.create(request);
     }
 
-    @Operation(summary = "Lister les clients")
+    @Operation(summary = "Lister ou rechercher les clients",
+            description = "Sans paramètre, retourne tous les clients. Avec search, filtre par numéro client, "
+                    + "prénom, nom ou e-mail (contient, sans tenir compte de la casse).")
     @ApiResponse(responseCode = "200", description = "Liste des clients")
     @GetMapping
-    public List<ClientResponse> list() {
-        return clientServices.findAll();
+    public List<ClientResponse> list(
+            @Parameter(description = "Texte à rechercher", example = "nkoulou")
+            @RequestParam(required = false) String search) {
+        return clientServices.search(search);
     }
 
     @Operation(summary = "Consulter un client par identifiant")
