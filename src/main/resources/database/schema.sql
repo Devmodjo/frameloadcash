@@ -78,3 +78,19 @@ CREATE TABLE transfers (
 ALTER TABLE transactions
     ADD COLUMN transfer_id BIGINT NULL,
     ADD CONSTRAINT fk_transactions_transfer FOREIGN KEY (transfer_id) REFERENCES transfers (id);
+
+
+CREATE TABLE bank_cards (
+    id              BIGINT      NOT NULL AUTO_INCREMENT,
+    card_reference  VARCHAR(20) NOT NULL,
+    account_id      BIGINT      NOT NULL,
+    card_type       VARCHAR(20) NOT NULL,
+    expiration_date DATE        NOT NULL,
+    status          VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at      DATE        NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_bank_cards_reference UNIQUE (card_reference),
+    CONSTRAINT fk_bank_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id),
+    CONSTRAINT ck_bank_cards_type CHECK (card_type IN ('DEBIT', 'PREPAID')),
+    CONSTRAINT ck_bank_cards_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'EXPIRED'))
+) ENGINE = InnoDB;
