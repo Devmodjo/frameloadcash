@@ -60,3 +60,9 @@ INSERT INTO bank_cards (id, card_reference, account_id, card_type, expiration_da
 (4, 'CD-000004', 5, 'PREPAID', '2029-09-03', 'ACTIVE',  '2026-09-03'),
 (5, 'CD-000005', 6, 'DEBIT',   '2029-09-03', 'BLOCKED', '2026-09-03'),
 (6, 'CD-000006', 7, 'DEBIT',   '2026-10-01', 'EXPIRED', '2026-09-03');
+
+
+INSERT INTO users (id, username, password_hash, role, status, created_at) VALUES
+(1, 'admin',      '$2a$10$bEUJO9/v5Z4uzVN2mYEDweumZF3MpZKlEhiS9KwNFAZWVQGFhLTJW', 'ADMIN',      'ACTIVE', '2026-09-01'),
+(2, 'agent',      '$2a$10$drJhkM37lwKMw3vy9raRw.h7f6/ovFiNyawZxKEPo4fFblDR3mNS6', 'AGENT',      'ACTIVE', '2026-09-01'),
+(3, 'supervisor', '$2a$10$jzKPO.Hon.BuH6veYgUQWuBM8wFxUiXMI7mho7dtgWUpKnGM5h0aO', 'SUPERVISOR', 'ACTIVE', '2026-09-01');
